@@ -25,10 +25,7 @@ export default function AdminDashboardScreen() {
             setLoading(true);
 
             // Fetch groups for the team
-            // Current API doesn't have a direct /teams/{team_id}/groups, 
-            // but we can fetch /groups/me and filter by teamId
-            const myGroups: GroupItem[] = await apiFetch('/groups/me');
-            const teamGroups = myGroups.filter(g => g.team_id === teamId);
+            const teamGroups: GroupItem[] = await apiFetch(`/teams/${teamId}/groups`);
             setGroups(teamGroups);
 
             // Fetch members from /teams/{team_id}/members
