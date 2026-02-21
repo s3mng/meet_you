@@ -16,6 +16,7 @@ export interface TeamMember {
     user_name: string;
     user_student_id: string;
     user_hakbun: number;
+    user_gender: string;
     role: string;
 }
 

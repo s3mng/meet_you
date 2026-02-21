@@ -94,7 +94,7 @@ export default function AdminDashboardScreen() {
                     )}
                 </View>
                 <Text style={styles.memberDesc}>
-                    {item.user_hakbun}학번 • {item.user_student_id}
+                    {item.user_hakbun}학번
                 </Text>
             </View>
         </View>
@@ -242,7 +242,7 @@ export default function AdminDashboardScreen() {
                                                     )}
                                                 </View>
                                                 <Text style={styles.memberDesc}>
-                                                    {member.user_hakbun}학번 • {member.user_student_id}
+                                                    {member.user_hakbun}학번
                                                 </Text>
                                             </View>
                                         </View>
