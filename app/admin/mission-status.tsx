@@ -11,6 +11,7 @@ import {
     View,
 } from 'react-native';
 import { apiFetch } from '../../utils/api';
+import { formatDate } from '../../utils/date';
 
 export default function MissionStatusScreen() {
     const router = useRouter();
@@ -124,7 +125,7 @@ export default function MissionStatusScreen() {
                         <Text style={styles.missionDescription}>{description}</Text>
                         <View style={styles.missionFooter}>
                             <Text style={styles.missionDate}>
-                                등록일: {new Date(createdAt).toLocaleDateString()}
+                                등록일: {formatDate(createdAt)}
                             </Text>
                         </View>
 

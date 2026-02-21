@@ -3,6 +3,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { apiFetch } from '../../utils/api';
+import { formatDate } from '../../utils/date';
 
 export default function ParticipantClubsScreen() {
     const router = useRouter();
@@ -59,7 +60,7 @@ export default function ParticipantClubsScreen() {
             </View>
             <View style={styles.clubInfo}>
                 <Text style={styles.clubName}>{item.name}</Text>
-                <Text style={styles.clubMeta}>가입일: {new Date(item.created_at).toLocaleDateString()}</Text>
+                <Text style={styles.clubMeta}>가입일: {formatDate(item.created_at)}</Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color="#d1d5db" />
         </TouchableOpacity>

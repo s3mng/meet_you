@@ -10,6 +10,7 @@ import {
     View,
 } from 'react-native';
 import { apiFetch } from '../../utils/api';
+import { formatDate } from '../../utils/date';
 
 export default function AdminTeamMissionsScreen() {
     const router = useRouter();
@@ -88,6 +89,12 @@ export default function AdminTeamMissionsScreen() {
                     <View style={styles.categoryTag}>
                         <Text style={styles.categoryTagText}>팀 미션</Text>
                     </View>
+                    {item.points ? (
+                        <View style={styles.pointsTag}>
+                            <Ionicons name="star" size={12} color="#ca8a04" />
+                            <Text style={styles.pointsTagText}>{item.points}점</Text>
+                        </View>
+                    ) : null}
                 </View>
 
                 <Text style={styles.missionDescription} numberOfLines={2}>{item.description}</Text>
@@ -96,7 +103,7 @@ export default function AdminTeamMissionsScreen() {
                     <View style={styles.deadlineContainer}>
                         <Ionicons name="calendar-outline" size={14} color="#6b7280" />
                         <Text style={styles.deadlineText}>
-                            작성일: {new Date(item.created_at).toLocaleDateString()}
+                            작성일: {formatDate(item.created_at)}
                         </Text>
                     </View>
                 </View>
@@ -265,6 +272,20 @@ const styles = StyleSheet.create({
     categoryTagText: {
         fontSize: 12,
         color: '#7e22ce', // purple-700
+    },
+    pointsTag: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#fef3c7', // amber-100
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 6,
+        gap: 4,
+    },
+    pointsTagText: {
+        fontSize: 12,
+        fontWeight: '600',
+        color: '#b45309', // amber-700
     },
     missionDescription: {
         fontSize: 14,

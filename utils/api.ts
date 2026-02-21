@@ -1,6 +1,34 @@
 // utils/api.ts
 const BASE_URL = 'https://ctsyftybpwjrscsq.tunnel.elice.io/api';
 
+export interface GroupItem {
+    id: number;
+    team_id: number;
+    name: string;
+    leader_id: number;
+    created_at: string;
+}
+
+export interface TeamMember {
+    id: number;
+    team_id: number;
+    user_id: number;
+    user_name: string;
+    user_student_id: string;
+    user_hakbun: number;
+    role: string;
+}
+
+export interface MyTeamResponse {
+    id: number;
+    name: string;
+    admin_id: number;
+    auth_code: string;
+    created_at: string;
+    my_role: string;
+    members?: TeamMember[]; // Adding members array logically to match context if available in response
+}
+
 let accessToken: string | null = null;
 
 export const setToken = (token: string) => {

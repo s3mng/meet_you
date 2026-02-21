@@ -3,6 +3,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
     FlatList,
+    Modal,
     SafeAreaView,
     StyleSheet,
     Text,
@@ -10,6 +11,7 @@ import {
     View
 } from 'react-native';
 import { apiFetch } from '../../utils/api';
+import { formatDate } from '../../utils/date';
 
 export default function ClubDetailsScreen() {
     const router = useRouter();
@@ -18,6 +20,8 @@ export default function ClubDetailsScreen() {
     const [teamMissions, setTeamMissions] = useState<any[]>([]);
     const [groupMissions, setGroupMissions] = useState<any[]>([]);
     const [rankInfo, setRankInfo] = useState<{ rank: number; points: number; groupName: string } | null>(null);
+    const [leaderboardList, setLeaderboardList] = useState<any[]>([]);
+    const [isLeaderboardModalVisible, setIsLeaderboardModalVisible] = useState(false);
     const [groupId, setGroupId] = useState<number | null>(null);
     const [loading, setLoading] = useState(true);
     const [errorMsg, setErrorMsg] = useState('');
@@ -67,6 +71,7 @@ export default function ClubDetailsScreen() {
 
             if (Array.isArray(leaderboardData)) {
                 leaderboardData.sort((a: any, b: any) => b.points - a.points);
+                setLeaderboardList(leaderboardData);
 
                 const myRankIndex = leaderboardData.findIndex((entry: any) => entry.group_id === groupId);
                 if (myRankIndex !== -1) {
@@ -197,7 +202,7 @@ export default function ClubDetailsScreen() {
                                         <View style={styles.deadlineContainer}>
                                             <Ionicons name="calendar-outline" size={14} color="#6b7280" />
                                             <Text style={styles.deadlineText}>
-                                                등록일: {new Date(item.created_at).toLocaleDateString()}
+                                                등록일: {formatDate(item.created_at)}
                                             </Text>
                                         </View>
                                         {isSuccess && (
@@ -218,7 +223,11 @@ export default function ClubDetailsScreen() {
 
                     {/* Bottom Score Box imitating example/MissionList.tsx */}
                     {rankInfo && (
-                        <View style={styles.bottomScoreContainer}>
+                        <TouchableOpacity
+                            style={styles.bottomScoreContainer}
+                            activeOpacity={0.8}
+                            onPress={() => setIsLeaderboardModalVisible(true)}
+                        >
                             <View style={styles.scoreBox}>
                                 <View style={styles.scoreRow}>
                                     <View>
@@ -231,11 +240,58 @@ export default function ClubDetailsScreen() {
                                     </View>
                                 </View>
                             </View>
-                        </View>
+                        </TouchableOpacity>
                     )}
                 </View>
             )}
-        </SafeAreaView >
+
+            {/* Leaderboard Modal */}
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={isLeaderboardModalVisible}
+                onRequestClose={() => setIsLeaderboardModalVisible(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContent}>
+                        <View style={styles.modalHeader}>
+                            <Text style={styles.modalTitle}>전체 조 순위</Text>
+                            <TouchableOpacity onPress={() => setIsLeaderboardModalVisible(false)} style={styles.closeButton}>
+                                <Ionicons name="close" size={24} color="#4b5563" />
+                            </TouchableOpacity>
+                        </View>
+                        <FlatList
+                            data={leaderboardList}
+                            keyExtractor={(item, index) => index.toString()}
+                            renderItem={({ item, index }) => (
+                                <View style={[
+                                    styles.leaderboardRow,
+                                    item.group_id === groupId && styles.myLeaderboardRow
+                                ]}>
+                                    <View style={styles.rankContainer}>
+                                        <Text style={[
+                                            styles.rankText,
+                                            index < 3 && styles.topRankText
+                                        ]}>{index + 1}등</Text>
+                                    </View>
+                                    <Text style={[
+                                        styles.leaderboardGroupName,
+                                        item.group_id === groupId && styles.myLeaderboardGroupName
+                                    ]}>{item.group_name}</Text>
+                                    <Text style={styles.leaderboardPoints}>{item.points}점</Text>
+                                </View>
+                            )}
+                            contentContainerStyle={styles.leaderboardListContent}
+                            ListEmptyComponent={
+                                <View style={styles.emptyLeaderboard}>
+                                    <Text style={styles.emptyLeaderboardText}>순위 데이터가 없습니다.</Text>
+                                </View>
+                            }
+                        />
+                    </View>
+                </View>
+            </Modal>
+        </SafeAreaView>
     );
 }
 
@@ -459,5 +515,85 @@ const styles = StyleSheet.create({
         color: '#ffffff',
         fontSize: 14,
         fontWeight: '600',
+    },
+    // Modal Styles
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'flex-end',
+    },
+    modalContent: {
+        backgroundColor: '#ffffff',
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        maxHeight: '80%',
+        paddingBottom: 20, // for safe area
+    },
+    modalHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: 20,
+        borderBottomWidth: 1,
+        borderBottomColor: '#e5e7eb',
+    },
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: '700',
+        color: '#1f2937',
+    },
+    closeButton: {
+        padding: 4,
+    },
+    leaderboardListContent: {
+        padding: 16,
+        paddingBottom: 40,
+    },
+    leaderboardRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: '#f3f4f6', // gray-100
+    },
+    myLeaderboardRow: {
+        backgroundColor: '#faf5ff', // purple-50
+        borderRadius: 8,
+        borderBottomWidth: 0,
+    },
+    rankContainer: {
+        width: 48,
+    },
+    rankText: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#4b5563',
+    },
+    topRankText: {
+        color: '#d97706', // amber-600
+        fontWeight: '700',
+    },
+    leaderboardGroupName: {
+        flex: 1,
+        fontSize: 16,
+        color: '#374151',
+    },
+    myLeaderboardGroupName: {
+        fontWeight: '700',
+        color: '#7e22ce', // purple-700
+    },
+    leaderboardPoints: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#4b5563',
+    },
+    emptyLeaderboard: {
+        padding: 32,
+        alignItems: 'center',
+    },
+    emptyLeaderboardText: {
+        color: '#6b7280',
+        fontSize: 15,
     },
 });

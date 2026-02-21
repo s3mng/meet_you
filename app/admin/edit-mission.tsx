@@ -25,6 +25,7 @@ export default function EditMissionScreen() {
 
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
+    const [points, setPoints] = useState('0');
     const [loading, setLoading] = useState(false);
     const [submitting, setSubmitting] = useState(false);
 
@@ -40,6 +41,7 @@ export default function EditMissionScreen() {
             const data = await apiFetch(`/missions/${missionId}`);
             setTitle(data.title || '');
             setDescription(data.description || '');
+            setPoints(data.points?.toString() || '0');
         } catch (error) {
             console.error('Failed to fetch mission:', error);
             Alert.alert('오류', '미션 정보를 불러오지 못했습니다.');
@@ -64,6 +66,7 @@ export default function EditMissionScreen() {
                     body: JSON.stringify({
                         title: title.trim(),
                         description: description.trim(),
+                        points: Number(points) || 0,
                     }),
                 });
                 Alert.alert('성공', '미션이 수정되었습니다.', [{ text: '확인', onPress: () => router.back() }]);
@@ -75,6 +78,7 @@ export default function EditMissionScreen() {
                         team_id: Number(teamId),
                         title: title.trim(),
                         description: description.trim(),
+                        points: Number(points) || 0,
                     }),
                 });
                 Alert.alert('성공', '미션이 추가되었습니다.', [{ text: '확인', onPress: () => router.back() }]);
@@ -166,6 +170,18 @@ export default function EditMissionScreen() {
                             multiline
                             numberOfLines={6}
                             textAlignVertical="top"
+                            placeholderTextColor="#9ca3af"
+                        />
+                    </View>
+
+                    <View style={styles.formGroup}>
+                        <Text style={styles.label}>배점</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="배점을 입력하세요 (예: 100)"
+                            value={points}
+                            onChangeText={setPoints}
+                            keyboardType="numeric"
                             placeholderTextColor="#9ca3af"
                         />
                     </View>
