@@ -31,12 +31,9 @@ export default function AdminDashboardScreen() {
             const teamGroups = myGroups.filter(g => g.team_id === teamId);
             setGroups(teamGroups);
 
-            // Fetch members from /teams/me
-            const myTeams = await apiFetch('/teams/me');
-            const currentTeam = myTeams.find((t: any) => t.id === teamId);
-            if (currentTeam && currentTeam.members) {
-                setMembers(currentTeam.members);
-            }
+            // Fetch members from /teams/{team_id}/members
+            const teamMembers: TeamMember[] = await apiFetch(`/teams/${teamId}/members`);
+            setMembers(teamMembers);
 
         } catch (error) {
             console.error('Failed to fetch dashboard data:', error);
