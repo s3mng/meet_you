@@ -506,7 +506,7 @@ const styles = StyleSheet.create({
     groupHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
+        justifyContent: 'space-between',
     },
     groupName: {
         fontSize: 16,
@@ -561,6 +561,68 @@ const styles = StyleSheet.create({
     memberDesc: {
         fontSize: 13,
         color: '#6b7280',
-    }
+    },
+    groupsList: {
+        gap: 8,
+    },
+    groupCardFull: {
+        backgroundColor: '#fdf4ff',
+        borderWidth: 1,
+        borderColor: '#f5d0fe',
+        borderRadius: 12,
+        padding: 16,
+    },
+    groupCardExpanded: {
+        borderBottomLeftRadius: 0,
+        borderBottomRightRadius: 0,
+        borderBottomWidth: 0,
+    },
+    pointsBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#fffbeb',
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 12,
+        gap: 4,
+    },
+    pointsText: {
+        fontSize: 13,
+        fontWeight: '700',
+        color: '#d97706',
+    },
+    groupMembersContainer: {
+        backgroundColor: '#fdf4ff',
+        borderWidth: 1,
+        borderTopWidth: 0,
+        borderColor: '#f5d0fe',
+        borderBottomLeftRadius: 12,
+        borderBottomRightRadius: 12,
+        paddingHorizontal: 16,
+        paddingBottom: 12,
+    },
+    emptyMemberText: {
+        color: '#9ca3af',
+        fontSize: 13,
+        textAlign: 'center',
+        paddingVertical: 12,
+    },
+    groupMemberRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 6,
+        borderTopWidth: 1,
+        borderTopColor: '#f3e8ff',
+    },
+    groupMemberName: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#1f2937',
+        flex: 1,
+    },
+    groupMemberInfo: {
+        fontSize: 12,
+        color: '#6b7280',
+    },
 });
 
