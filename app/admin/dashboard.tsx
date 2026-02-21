@@ -18,6 +18,10 @@ export default function AdminDashboardScreen() {
     const [loading, setLoading] = useState(true);
     const [creatingGroup, setCreatingGroup] = useState(false);
     const [newGroupName, setNewGroupName] = useState('');
+    const [expandedGroupId, setExpandedGroupId] = useState<number | null>(null);
+    const [groupMembers, setGroupMembers] = useState<any[]>([]);
+    const [groupMembersLoading, setGroupMembersLoading] = useState(false);
+    const [leaderboard, setLeaderboard] = useState<{ group_id: number; group_name: string; points: number }[]>([]);
 
     const fetchData = async () => {
         if (!teamId) return;
@@ -31,6 +35,12 @@ export default function AdminDashboardScreen() {
             // Fetch members from /teams/{team_id}/members
             const teamMembers: TeamMember[] = await apiFetch(`/teams/${teamId}/members`);
             setMembers(teamMembers);
+
+            // Fetch leaderboard for group scores
+            try {
+                const lb = await apiFetch(`/leaderboard/${teamId}`);
+                setLeaderboard(lb);
+            } catch { setLeaderboard([]); }
 
         } catch (error) {
             console.error('Failed to fetch dashboard data:', error);
@@ -74,6 +84,29 @@ export default function AdminDashboardScreen() {
 
     const handleBack = () => {
         router.back();
+    };
+
+    const handleGroupPress = async (groupId: number) => {
+        if (expandedGroupId === groupId) {
+            setExpandedGroupId(null);
+            setGroupMembers([]);
+            return;
+        }
+        setExpandedGroupId(groupId);
+        setGroupMembersLoading(true);
+        try {
+            const members = await apiFetch(`/groups/${groupId}/members`);
+            setGroupMembers(members);
+        } catch {
+            setGroupMembers([]);
+        } finally {
+            setGroupMembersLoading(false);
+        }
+    };
+
+    const getGroupPoints = (groupId: number) => {
+        const entry = leaderboard.find(e => e.group_id === groupId);
+        return entry ? entry.points : 0;
     };
 
     const renderMember = ({ item }: { item: TeamMember }) => (
@@ -194,17 +227,53 @@ export default function AdminDashboardScreen() {
                                     <Text style={styles.emptyBoxText}>아직 생성된 조가 없습니다.</Text>
                                 </View>
                             ) : (
-                                <View style={styles.groupsGrid}>
-                                    {groups.map((group, index) => (
-                                        <View key={group.id} style={styles.groupCardWrapper}>
-                                            <View style={styles.groupCard}>
-                                                <View style={styles.groupHeader}>
-                                                    <Text style={styles.groupName}>{group.name || `${index + 1}조`}</Text>
-                                                    <Ionicons name="people" size={20} color="#8b5cf6" />
-                                                </View>
+                                <View style={styles.groupsList}>
+                                    {groups.map((group, index) => {
+                                        const isExpanded = expandedGroupId === group.id;
+                                        const points = getGroupPoints(group.id);
+                                        return (
+                                            <View key={group.id}>
+                                                <TouchableOpacity
+                                                    style={[styles.groupCardFull, isExpanded && styles.groupCardExpanded]}
+                                                    onPress={() => handleGroupPress(group.id)}
+                                                    activeOpacity={0.7}
+                                                >
+                                                    <View style={styles.groupHeader}>
+                                                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                                                            <Ionicons name="people" size={20} color="#8b5cf6" />
+                                                            <Text style={styles.groupName}>{group.name || `${index + 1}조`}</Text>
+                                                        </View>
+                                                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                                                            <View style={styles.pointsBadge}>
+                                                                <Ionicons name="star" size={12} color="#f59e0b" />
+                                                                <Text style={styles.pointsText}>{points}점</Text>
+                                                            </View>
+                                                            <Ionicons name={isExpanded ? 'chevron-up' : 'chevron-down'} size={18} color="#9ca3af" />
+                                                        </View>
+                                                    </View>
+                                                </TouchableOpacity>
+                                                {isExpanded && (
+                                                    <View style={styles.groupMembersContainer}>
+                                                        {groupMembersLoading ? (
+                                                            <ActivityIndicator size="small" color="#a855f7" style={{ marginVertical: 12 }} />
+                                                        ) : groupMembers.length === 0 ? (
+                                                            <Text style={styles.emptyMemberText}>배정된 멤버가 없습니다.</Text>
+                                                        ) : (
+                                                            groupMembers.map((m: any) => (
+                                                                <View key={m.id} style={styles.groupMemberRow}>
+                                                                    <View style={styles.memberAvatar}>
+                                                                        <Ionicons name="person" size={16} color="#6b7280" />
+                                                                    </View>
+                                                                    <Text style={styles.groupMemberName}>{m.username}</Text>
+                                                                    <Text style={styles.groupMemberInfo}>{m.hakbun}학번</Text>
+                                                                </View>
+                                                            ))
+                                                        )}
+                                                    </View>
+                                                )}
                                             </View>
-                                        </View>
-                                    ))}
+                                        );
+                                    })}
                                 </View>
                             )}
                         </View>
