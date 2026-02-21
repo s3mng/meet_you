@@ -18,6 +18,7 @@ export default function ClubDetailsScreen() {
     const [teamMissions, setTeamMissions] = useState<any[]>([]);
     const [groupMissions, setGroupMissions] = useState<any[]>([]);
     const [rankInfo, setRankInfo] = useState<{ rank: number; points: number; groupName: string } | null>(null);
+    const [groupId, setGroupId] = useState<number | null>(null);
     const [loading, setLoading] = useState(true);
     const [errorMsg, setErrorMsg] = useState('');
 
@@ -40,6 +41,7 @@ export default function ClubDetailsScreen() {
 
             const groupId = myGroup.id;
             const groupName = myGroup.name;
+            setGroupId(groupId);
 
             // Fetch base team missions (content)
             currentStep = `teams/${id}/missions`;
@@ -137,7 +139,7 @@ export default function ClubDetailsScreen() {
                         keyExtractor={(item) => item.id.toString()}
                         renderItem={({ item }) => {
                             // Find corresponding group mission to determine status
-                            const groupMission = groupMissions.find(gm => gm.mission_id === item.id);
+                            const groupMission = groupMissions.find(gm => (gm.mission_id ?? gm.id) === item.id);
                             // If not found or status not success, consider it ongoing/pending
                             const isSuccess = groupMission?.status === 'success';
 
@@ -146,8 +148,9 @@ export default function ClubDetailsScreen() {
                                     style={[styles.missionCard, isSuccess ? styles.missionCardSuccess : styles.missionCardOngoing]}
                                     activeOpacity={0.7}
                                     onPress={() => {
-                                        // Optional: Handle mission click if participant can submit
-                                        // router.push(`/participant/mission-submit?missionId=${item.id}&groupId=${groupId}` as any);
+                                        if (!isSuccess && groupId !== null) {
+                                            router.push(`/participant/mission-submit?missionId=${item.id}&groupId=${groupId}` as any);
+                                        }
                                     }}
                                 >
                                     <View style={styles.missionHeader}>
@@ -178,6 +181,17 @@ export default function ClubDetailsScreen() {
                                     </View>
 
                                     <Text style={styles.missionDescription} numberOfLines={2}>{item.description}</Text>
+
+                                    {item.model_url && (
+                                        <TouchableOpacity
+                                            style={styles.modelButton}
+                                            activeOpacity={0.8}
+                                            onPress={() => router.push(`/participant/model-viewer?url=${item.model_url}`)}
+                                        >
+                                            <Ionicons name="cube-outline" size={18} color="#ffffff" />
+                                            <Text style={styles.modelButtonText}>3D 모델 보기</Text>
+                                        </TouchableOpacity>
+                                    )}
 
                                     <View style={styles.missionFooter}>
                                         <View style={styles.deadlineContainer}>
@@ -429,5 +443,21 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: '700',
         color: '#9333ea', // purple-600
+    },
+    modelButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#4f46e5', // indigo-600
+        paddingVertical: 10,
+        borderRadius: 8,
+        marginTop: 4,
+        marginBottom: 12,
+        gap: 8,
+    },
+    modelButtonText: {
+        color: '#ffffff',
+        fontSize: 14,
+        fontWeight: '600',
     },
 });

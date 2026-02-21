@@ -16,9 +16,14 @@ export const clearToken = () => {
 export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
     const url = `${BASE_URL}${endpoint}`;
     const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
         ...(options.headers as Record<string, string>),
     };
+
+    // If body is FormData, don't set Content-Type to application/json
+    // The browser/fetch will automatically set it to multipart/form-data with the correct boundary
+    if (!(options.body instanceof FormData)) {
+        headers['Content-Type'] = 'application/json';
+    }
 
     if (accessToken) {
         headers['Authorization'] = `Bearer ${accessToken}`;

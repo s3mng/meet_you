@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import * as SecureStore from 'expo-secure-store';
 import React from 'react';
 import {
     ActivityIndicator,
@@ -111,8 +112,6 @@ export default function RoleSelectionScreen() {
                     onPress={async () => {
                         try {
                             // Clear token from SecureStore or AsyncStorage
-                            // Assuming we can just import from expo-secure-store directly or clear AsyncStorage
-                            const SecureStore = require('expo-secure-store');
                             await SecureStore.deleteItemAsync('jwt_token');
                         } catch (e) {
                             console.error('Logout error', e);
